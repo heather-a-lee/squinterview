@@ -48,9 +48,10 @@ export default function Analytics() {
             {maxAreaData && (
               <>
                 <div>
-                  {Object.keys(maxAreaData.maxPoint).map((point) => (
-                    <span>{renderPoint(maxAreaData.maxPoint[point])}</span>
-                  ))}
+                  {maxAreaData.maxPoint &&
+                    Object.keys(maxAreaData.maxPoint).map((point) => (
+                      <span>{renderPoint(maxAreaData.maxPoint[point])}</span>
+                    ))}
                 </div>
                 <div>Area: {maxAreaData.maxArea}</div>
               </>
