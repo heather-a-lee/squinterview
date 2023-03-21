@@ -2,7 +2,7 @@ import { TriangleContext } from "@/contexts/triangleContext";
 import { ClientStatus } from "@/pages";
 import { PointDict } from "@/types";
 import { renderPoint } from "@/utils";
-import { Button, Card, Container, Text } from "@nextui-org/react";
+import { Button, Card, Spacer, Text } from "@nextui-org/react";
 import { useContext } from "react";
 
 const TriangleCard = ({
@@ -39,17 +39,19 @@ const TriangleList = () => {
     if (!clientLoaded) return null;
     return triangles.map((triangle: PointDict, index: number) => {
       return (
-        <TriangleCard
-          key={JSON.stringify(triangle)}
-          deleteTriangle={deleteTriangle(index)}
-          triangle={triangle}
-        />
+        <div key={JSON.stringify(triangle)}>
+          <TriangleCard
+            deleteTriangle={deleteTriangle(index)}
+            triangle={triangle}
+          />
+          <Spacer y={0.5} />
+        </div>
       );
     });
   };
 
   return (
-    <div className="existingTriangles" style={{ flex: 0.5 }}>
+    <div className="existingTriangles">
       <Text size="$2xl">Triangles</Text>
       {renderTriangleList()}
     </div>

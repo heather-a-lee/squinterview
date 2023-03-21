@@ -32,8 +32,8 @@ export default function Home() {
       <main>
         <ClientStatus.Provider value={clientLoaded}>
           <TriangleContext.Provider value={{ triangles, setTriangles }}>
-            <Container>
-              <Row>
+            <Container gap={1}>
+              <Row gap={2}>
                 <Col>
                   <TriangleForm />
                 </Col>
