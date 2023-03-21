@@ -2,6 +2,8 @@ import TriangleCanvas from "@/components/TriangleCanvas";
 import TriangleForm from "@/components/TriangleForm";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { PointDict } from "@/types";
+import { renderPoint } from "@/utils";
+import { Button, Card, Container, Text } from "@nextui-org/react";
 import Head from "next/head";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -25,16 +27,21 @@ export default function Home() {
     if (!clientLoaded) return null;
     return triangles.map((triangle: PointDict, index: number) => {
       return (
-        <div key={JSON.stringify(triangle)}>
-          {Object.keys(triangle).map((point) => {
-            return (
-              <span
-                key={point}
-              >{`(${triangle[point].X}, ${triangle[point].Y})`}</span>
-            );
-          })}
-          <button onClick={() => deleteTriangle(index)}>Delete</button>
-        </div>
+        <Card variant="bordered" key={JSON.stringify(triangle)}>
+          <Card.Body>
+            {Object.keys(triangle).map((point) => {
+              return <span key={point}>{renderPoint(triangle[point])}</span>;
+            })}
+            <Button
+              color="secondary"
+              size="sm"
+              flat
+              onClick={() => deleteTriangle(index)}
+            >
+              Delete
+            </Button>
+          </Card.Body>
+        </Card>
       );
     });
   };
@@ -47,20 +54,23 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main>
-        <div
-          style={{
-            display: "flex",
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-          }}
-        >
-          <TriangleForm setTriangles={setTriangles} triangles={triangles} />
-          <div className="existingTriangles" style={{ flex: 0.5 }}>
-            {renderTriangleList()}
+        <Container>
+          <div
+            style={{
+              display: "flex",
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+            }}
+          >
+            <TriangleForm setTriangles={setTriangles} triangles={triangles} />
+            <div className="existingTriangles" style={{ flex: 0.5 }}>
+              <Text size="$2xl">Triangles</Text>
+              {renderTriangleList()}
+            </div>
+            <TriangleCanvas triangles={triangles} />
           </div>
-          <TriangleCanvas triangles={triangles} />
-        </div>
+        </Container>
       </main>
     </>
   );

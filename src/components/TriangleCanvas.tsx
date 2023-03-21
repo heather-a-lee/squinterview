@@ -3,11 +3,7 @@ import { useEffect, useRef } from "react";
 
 const TriangleCanvas = ({ triangles }: { triangles: PointDict[] }) => {
   const canvasRef = useRef(null);
-  const draw = (
-    ctx: CanvasRenderingContext2D,
-    trianglePoints: PointDict,
-    canvas: HTMLCanvasElement
-  ) => {
+  const draw = (ctx: CanvasRenderingContext2D, trianglePoints: PointDict) => {
     console.log("Calling draw with trianglePoints", trianglePoints);
     ctx.beginPath();
     let firstPoint = true;
@@ -39,7 +35,7 @@ const TriangleCanvas = ({ triangles }: { triangles: PointDict[] }) => {
     const render = () => {
       context.clearRect(0, 0, canvas.width, canvas.height);
       triangles.forEach((triangle) => {
-        draw(context, triangle, canvas);
+        draw(context, triangle);
       });
     };
     render();

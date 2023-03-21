@@ -1,4 +1,6 @@
 import { PointDict } from "@/types";
+import { isValidTriangle } from "@/utils";
+import { Button, Input, Spacer } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 
 const POINTS = [
@@ -33,6 +35,8 @@ const DEFAULT_POINTS = {
 
 const TriangleForm = ({ triangles, setTriangles }) => {
   const [points, setPoints] = useState<PointDict>(DEFAULT_POINTS);
+  const [error, setError] = useState("");
+
   useEffect(() => {
     setPoints(DEFAULT_POINTS);
   }, [triangles]);
@@ -49,15 +53,19 @@ const TriangleForm = ({ triangles, setTriangles }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = () => {
     // TODO: Add validation to check that the points are valid and numbers
-    e.preventDefault();
     const expectedPoints = POINTS.map(({ pointName }) => pointName);
     for (const expectedPoint of expectedPoints) {
       if (!points[expectedPoint]) {
         console.log("There was an issue here");
         return;
       }
+    }
+    const valid = isValidTriangle(points.pointA, points.pointB, points.pointC);
+    if (!valid) {
+      setError("Invalid triangle");
+      return;
     }
     setTriangles((triangles: PointDict[]) => [...triangles, points]);
   };
@@ -66,15 +74,18 @@ const TriangleForm = ({ triangles, setTriangles }) => {
     return (
       <fieldset key={pointName}>
         <legend>{pointLabel}</legend>
-        <input
+        <Input
           type="text"
+          label="X"
           placeholder="X"
           name={`${pointName}X`}
           onChange={updatePoint(pointName, "X")}
           value={points[pointName].X}
         />
-        <input
+        <Spacer y={0.5} />
+        <Input
           type="text"
+          label="Y"
           placeholder="Y"
           name={`${pointName}Y`}
           onChange={updatePoint(pointName, "Y")}
@@ -88,10 +99,10 @@ const TriangleForm = ({ triangles, setTriangles }) => {
     <div>
       <form>
         {POINTS.map((point) => renderPoint(point.pointLabel, point.pointName))}
-        <button type="submit" onClick={handleSubmit}>
-          Create Triangle
-        </button>
+        <Spacer y={0.5} />
+        <Button onPress={handleSubmit}>Create Triangle</Button>
       </form>
+      {error && <div>{error}</div>}
     </div>
   );
 };
