@@ -1,20 +1,26 @@
-import { Point, PointDict } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import { canvasStyle } from "@/styles/canvasStyles";
+import { MaxAreaData, Point } from "@/types";
+import { useEffect, useRef } from "react";
 
-const PointCanvas = ({ points, maxArea }) => {
-  const canvasRef = useRef(null);
+const PointCanvas = ({
+  points,
+  maxAreaData,
+}: {
+  points: Point[];
+  maxAreaData: MaxAreaData;
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
   const draw = (
     ctx: CanvasRenderingContext2D,
     points: Point[],
-    area: { maxArea: number; maxPoint: PointDict }
+    area: MaxAreaData
   ) => {
-    console.log("Calling draw with points", points);
     ctx.beginPath();
-    let firstPoint = true;
-    if (area.maxArea) {
-      ctx.moveTo(area.maxPoint.pointA.X, area.maxPoint.pointA.Y);
-      ctx.lineTo(area.maxPoint.pointB.X, area.maxPoint.pointB.Y);
-      ctx.lineTo(area.maxPoint.pointC.X, area.maxPoint.pointC.Y);
+    if (area.maxArea && area.maxPoints) {
+      ctx.moveTo(area.maxPoints.pointA.X, area.maxPoints.pointA.Y);
+      ctx.lineTo(area.maxPoints.pointB.X, area.maxPoints.pointB.Y);
+      ctx.lineTo(area.maxPoints.pointC.X, area.maxPoints.pointC.Y);
     }
     ctx.closePath();
     points.forEach((point) => {
@@ -24,10 +30,6 @@ const PointCanvas = ({ points, maxArea }) => {
     ctx.lineWidth = 2;
     ctx.strokeStyle = "#666666";
     ctx.stroke();
-
-    // // the fill color
-    // ctx.fillStyle = "#FFCC00";
-    // ctx.fill();
   };
 
   useEffect(() => {
@@ -35,28 +37,16 @@ const PointCanvas = ({ points, maxArea }) => {
     if (!canvas) return;
     const context = canvas.getContext("2d");
     const render = () => {
+      if (!context) return;
       context.clearRect(0, 0, canvas.width, canvas.height);
-      // points.forEach((point) => {
-      draw(context, points, maxArea);
-      // });
+      draw(context, points, maxAreaData);
     };
     render();
-  }, [points, maxArea]);
+  }, [points, maxAreaData]);
 
   return (
     <div className="canvas">
-      <canvas
-        width="500"
-        height="500"
-        style={{
-          objectFit: "contain",
-          width: 500,
-          height: 500,
-          border: "1px solid #000",
-          display: "block",
-        }}
-        ref={canvasRef}
-      />
+      <canvas width="500" height="500" style={canvasStyle} ref={canvasRef} />
     </div>
   );
 };

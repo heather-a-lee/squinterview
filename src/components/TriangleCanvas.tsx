@@ -1,22 +1,20 @@
-import { TriangleContext } from "@/pages";
+import { TriangleContext } from "@/contexts/triangleContext";
+import { canvasStyle } from "@/styles/canvasStyles";
 import { PointDict } from "@/types";
 import { useContext, useEffect, useRef } from "react";
 
 const TriangleCanvas = () => {
   const { triangles } = useContext(TriangleContext);
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const draw = (ctx: CanvasRenderingContext2D, trianglePoints: PointDict) => {
-    console.log("Calling draw with trianglePoints", trianglePoints);
     ctx.beginPath();
     let firstPoint = true;
     Object.keys(trianglePoints).forEach((point) => {
       const { X, Y } = trianglePoints[point];
       if (firstPoint) {
-        console.log("Calling moveTo", X, Y);
         ctx.moveTo(X, Y);
         firstPoint = false;
       } else {
-        console.log("Calling lineTo", X, Y);
         ctx.lineTo(X, Y);
       }
     });
@@ -35,6 +33,7 @@ const TriangleCanvas = () => {
     if (!canvas) return;
     const context = canvas.getContext("2d");
     const render = () => {
+      if (!context) return;
       context.clearRect(0, 0, canvas.width, canvas.height);
       triangles.forEach((triangle) => {
         draw(context, triangle);
@@ -45,18 +44,7 @@ const TriangleCanvas = () => {
 
   return (
     <div className="canvas">
-      <canvas
-        width="500"
-        height="500"
-        style={{
-          objectFit: "contain",
-          width: 500,
-          height: 500,
-          border: "1px solid #000",
-          display: "block",
-        }}
-        ref={canvasRef}
-      />
+      <canvas width="500" height="500" style={canvasStyle} ref={canvasRef} />
     </div>
   );
 };

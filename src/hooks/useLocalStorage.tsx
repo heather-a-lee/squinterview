@@ -1,9 +1,10 @@
-import { PointDict } from "@/types";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 
-import { useState, useEffect } from "react";
-
-function useLocalStorage<T>(key: string, defaultValue: T) {
-  const [value, setValue] = useState(() => {
+function useLocalStorage<T>(
+  key: string,
+  defaultValue: T
+): [T, Dispatch<SetStateAction<T>>] {
+  const [value, setValue] = useState<T>(() => {
     if (typeof window === "undefined") {
       return defaultValue;
     }

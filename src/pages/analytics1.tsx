@@ -1,38 +1,62 @@
 import PointCanvas from "@/components/PointCanvas";
+import { LOCAL_STORAGE_KEY } from "@/constants";
+import { MaxAreaData, Point, PointDict } from "@/types";
 import { getLargestTriangle, renderPoint } from "@/utils";
 import { Container, Row, Col, Text } from "@nextui-org/react";
 import axios from "axios";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Analytics() {
-  const [points, setPoints] = useState([]);
-  const [maxAreaData, setMaxAreaData] = useState({});
+  const [points, setPoints] = useState<Point[]>([]);
+  const [maxAreaData, setMaxAreaData] = useState<MaxAreaData>({
+    maxArea: 0,
+  });
   const [funFact, setFunFact] = useState("");
 
   useEffect(() => {
-    const data = localStorage.getItem("triangleData");
-    const trianglePoints = JSON.parse(data);
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (!data) return;
+    const trianglePoints = JSON.parse(data) as PointDict[];
     const points = trianglePoints.flatMap((trianglePoint) => {
       return Object.values(trianglePoint);
     });
     setPoints(points);
-    const { maxArea, maxPoint } = getLargestTriangle(points);
-    setMaxAreaData({ maxArea, maxPoint });
+    const { maxArea, maxPoints } = getLargestTriangle(points);
+    if (maxPoints) {
+      setMaxAreaData({ maxArea, maxPoints });
+      axios
+        .get(`http://numbersapi.com/${maxArea}`)
+        .then((res) => res.data)
+        .then((data) => {
+          console.log("Setting fun fact to", data);
+          setFunFact(data);
+        });
+    }
   }, []);
 
-  useEffect(() => {
-    if (Object.keys(maxAreaData).length === 0) {
-      return;
-    }
-    const { maxArea } = maxAreaData;
-    axios
-      .get(`http://numbersapi.com/${maxArea}`)
-      .then((res) => res.data)
-      .then((data) => {
-        setFunFact(data);
-      });
-  }, [maxAreaData]);
+  const renderMaxAreaData = () => {
+    if (!maxAreaData) return null;
+    if (!maxAreaData.maxPoints) return null;
+    return (
+      <>
+        <div>
+          {Object.values(maxAreaData.maxPoints).map((pointValue) => (
+            <span key={JSON.stringify(pointValue)}>
+              {renderPoint(pointValue)}
+            </span>
+          ))}
+        </div>
+        <div>Area: {maxAreaData.maxArea}</div>
+        {funFact && (
+          <div>
+            {`Trivia about ${maxAreaData.maxArea}`}: {funFact}
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <>
@@ -42,26 +66,22 @@ export default function Analytics() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Container>
-        <Row>
-          <Col>
-            <Text size="$2xl">Largest Triangle</Text>
-            {maxAreaData && (
-              <>
-                <div>
-                  {maxAreaData.maxPoint &&
-                    Object.keys(maxAreaData.maxPoint).map((point) => (
-                      <span>{renderPoint(maxAreaData.maxPoint[point])}</span>
-                    ))}
-                </div>
-                <div>Area: {maxAreaData.maxArea}</div>
-              </>
-            )}
-            {funFact && <div>{funFact}</div>}
-          </Col>
-          <Col>
-            <PointCanvas points={points} maxArea={maxAreaData} />
-          </Col>
-        </Row>
+        {!points && (
+          <div>
+            No points yet. Add them <Link href="/">here</Link>?
+          </div>
+        )}
+        {points && (
+          <Row>
+            <Col>
+              <Text size="$2xl">Largest Triangle</Text>
+              {renderMaxAreaData()}
+            </Col>
+            <Col>
+              <PointCanvas points={points} maxAreaData={maxAreaData} />
+            </Col>
+          </Row>
+        )}
       </Container>
     </>
   );

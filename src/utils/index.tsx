@@ -13,16 +13,16 @@ const isValidTriangle = (pointA: Point, pointB: Point, pointC: Point) => {
   return getArea(pointA, pointB, pointC) !== 0;
 };
 
-const getLargestTriangle = (points) => {
+const getLargestTriangle = (points: Point[]) => {
   let maxArea = 0;
-  let maxPoint;
+  let maxPoints;
   for (let i = 0; i < points.length - 2; i++) {
     for (let j = i + 1; j < points.length - 1; j++) {
       for (let k = j + 1; k < points.length; k++) {
         const currentArea = getArea(points[i], points[j], points[k]);
         if (currentArea > maxArea) {
           maxArea = currentArea;
-          maxPoint = {
+          maxPoints = {
             pointA: points[i],
             pointB: points[j],
             pointC: points[k],
@@ -31,7 +31,7 @@ const getLargestTriangle = (points) => {
       }
     }
   }
-  return { maxArea, maxPoint };
+  return { maxArea: Math.round(maxArea / 2), maxPoints };
 };
 
 const renderPoint = (point: Point) => {

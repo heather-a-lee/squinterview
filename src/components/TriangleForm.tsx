@@ -1,110 +1,103 @@
-import { TriangleContext } from "@/pages";
-import { PointDict } from "@/types";
+import { TriangleContext } from "@/contexts/triangleContext";
+import { Point, PointDict } from "@/types";
 import { isValidTriangle } from "@/utils";
 import { Button, Input, Spacer } from "@nextui-org/react";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext } from "react";
+import { FieldError, FieldErrors, useForm } from "react-hook-form";
+
+enum PointName {
+  A = "pointA",
+  B = "pointB",
+  C = "pointC",
+}
 
 const POINTS = [
   {
     pointLabel: "Point A",
-    pointName: "pointA",
+    pointName: PointName.A,
   },
   {
     pointLabel: "Point B",
-    pointName: "pointB",
+    pointName: PointName.B,
   },
   {
     pointLabel: "Point C",
-    pointName: "pointC",
+    pointName: PointName.C,
   },
 ];
 
-const DEFAULT_POINTS = {
-  pointA: {
-    X: "",
-    Y: "",
-  },
-  pointB: {
-    X: "",
-    Y: "",
-  },
-  pointC: {
-    X: "",
-    Y: "",
-  },
+type FormData = {
+  pointA: Point;
+  pointB: Point;
+  pointC: Point;
 };
 
-const TriangleForm = (/* { triangles, setTriangles } */) => {
-  const { triangles, setTriangles } = useContext(TriangleContext);
-  const [points, setPoints] = useState<PointDict>(DEFAULT_POINTS);
-  const [error, setError] = useState("");
+const TriangleForm = () => {
+  const { setTriangles } = useContext(TriangleContext);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    reset,
+  } = useForm<FormData>();
 
-  useEffect(() => {
-    setPoints(DEFAULT_POINTS);
-  }, [triangles]);
-
-  console.log("points", points);
-
-  const updatePoint = (pointName: string, axis: string) => (e) => {
-    const { value } = e.target;
-    setPoints((points) => {
-      return {
-        ...points,
-        [pointName]: { ...points[pointName], [axis]: Number(value) },
-      };
-    });
-  };
-
-  const handleSubmit = () => {
-    // TODO: Add validation to check that the points are valid and numbers
-    const expectedPoints = POINTS.map(({ pointName }) => pointName);
-    for (const expectedPoint of expectedPoints) {
-      if (!points[expectedPoint]) {
-        console.log("There was an issue here");
-        return;
-      }
-    }
-    const valid = isValidTriangle(points.pointA, points.pointB, points.pointC);
+  const onSubmit = (data: FormData) => {
+    const { pointA, pointB, pointC } = data;
+    const valid = isValidTriangle(pointA, pointB, pointC);
     if (!valid) {
-      setError("Invalid triangle");
+      setError("root.invalidTriangle", {});
       return;
     }
-    setTriangles((triangles: PointDict[]) => [...triangles, points]);
+    setTriangles((triangles: PointDict[]) => [...triangles, data]);
+    reset();
   };
 
-  const renderPoint = (pointLabel: string, pointName: string) => {
+  const renderInput = (
+    type: "X" | "Y",
+    pointName: PointName,
+    error: FieldError | undefined
+  ) => {
+    const getTextColor = () => {
+      if (error) return "error";
+      return "default";
+    };
+    return (
+      <Input
+        type="number"
+        label={type}
+        placeholder={type}
+        {...register(`${pointName}.${type}`, {
+          valueAsNumber: true,
+          required: `${pointName}.${type} is required`,
+        })}
+        color={getTextColor()}
+        status={getTextColor()}
+        helperText={error ? errors[pointName]?.[type]?.message : ""}
+        helperColor={getTextColor()}
+      />
+    );
+  };
+
+  const renderPoint = (pointLabel: string, pointName: PointName) => {
     return (
       <fieldset key={pointName}>
         <legend>{pointLabel}</legend>
-        <Input
-          type="text"
-          label="X"
-          placeholder="X"
-          name={`${pointName}X`}
-          onChange={updatePoint(pointName, "X")}
-          value={points[pointName].X}
-        />
+        {renderInput("X", pointName, errors[pointName]?.X)}
         <Spacer y={0.5} />
-        <Input
-          type="text"
-          label="Y"
-          placeholder="Y"
-          name={`${pointName}Y`}
-          onChange={updatePoint(pointName, "Y")}
-          value={points[pointName] ? points[pointName].Y : ""}
-        />
+        {renderInput("Y", pointName, errors[pointName]?.Y)}
       </fieldset>
     );
   };
 
   return (
     <div>
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         {POINTS.map((point) => renderPoint(point.pointLabel, point.pointName))}
         <Spacer y={0.5} />
-        <Button onPress={handleSubmit}>Create Triangle</Button>
+        <Button type="submit">Create Triangle</Button>
       </form>
-      {error && <div>{error}</div>}
+      {errors.root?.invalidTriangle && <div>Invalid triangle</div>}
     </div>
   );
 };

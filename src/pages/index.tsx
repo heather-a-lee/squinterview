@@ -1,18 +1,19 @@
 import TriangleCanvas from "@/components/TriangleCanvas";
 import TriangleForm from "@/components/TriangleForm";
 import TriangleList from "@/components/TriangleList";
+import { LOCAL_STORAGE_KEY } from "@/constants";
+import { TriangleContext } from "@/contexts/triangleContext";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { PointDict } from "@/types";
 import { Container, Row, Col } from "@nextui-org/react";
 import Head from "next/head";
-import React, { createContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
-export const TriangleContext = createContext({});
 export const ClientStatus = createContext(false);
 
 export default function Home() {
   const [triangles, setTriangles] = useLocalStorage<PointDict[]>(
-    "triangleData",
+    LOCAL_STORAGE_KEY,
     []
   );
   const [clientLoaded, setClientLoaded] = useState(false);
