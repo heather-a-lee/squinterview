@@ -1,7 +1,8 @@
+import { TriangleContext } from "@/pages";
 import { PointDict } from "@/types";
 import { isValidTriangle } from "@/utils";
 import { Button, Input, Spacer } from "@nextui-org/react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 const POINTS = [
   {
@@ -33,7 +34,8 @@ const DEFAULT_POINTS = {
   },
 };
 
-const TriangleForm = ({ triangles, setTriangles }) => {
+const TriangleForm = (/* { triangles, setTriangles } */) => {
+  const { triangles, setTriangles } = useContext(TriangleContext);
   const [points, setPoints] = useState<PointDict>(DEFAULT_POINTS);
   const [error, setError] = useState("");
 

@@ -1,7 +1,9 @@
+import { TriangleContext } from "@/pages";
 import { PointDict } from "@/types";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 
-const TriangleCanvas = ({ triangles }: { triangles: PointDict[] }) => {
+const TriangleCanvas = () => {
+  const { triangles } = useContext(TriangleContext);
   const canvasRef = useRef(null);
   const draw = (ctx: CanvasRenderingContext2D, trianglePoints: PointDict) => {
     console.log("Calling draw with trianglePoints", trianglePoints);
